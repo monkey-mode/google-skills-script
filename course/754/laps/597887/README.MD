@@ -25,6 +25,8 @@ Automates the Google Cloud Skills Boost lab: provision two Compute Engine VMs, o
 
 ```bash
 # Run directly from GitHub
+mkdir lab-597887 && cd lab-597887
+
 terraform init -from-module=github.com/monkey-mode/google-skills-script//course/754/laps/597887/iac
 terraform apply
 ```
@@ -39,7 +41,7 @@ terraform init
 terraform apply
 
 # Custom values
-terraform apply -var="region=us-central1" -var="zone=us-central1-a" -var="machine_type=e2-standard-2"
+terraform apply -var="region=asia-south1" -var="zone=asia-south1-c" -auto-approve  -var="machine_type=e2-standard-2"
 
 # Destroy all resources
 terraform destroy

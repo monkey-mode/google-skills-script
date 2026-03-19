@@ -10,15 +10,17 @@ course/
 └── <course-id>/
     └── laps/
         └── <lab-id>/
-            ├── lab_script.sh   # automation script
-            └── README.MD       # lab-specific usage & notes
+            ├── README.MD
+            ├── iac/        # Terraform
+            └── script/     # Bash automation
 ```
 
 ## Labs
 
 | Course | Lab | Description |
 |--------|-----|-------------|
-| [754 — The Basics of Google Cloud Compute](course/754/laps/597887/) | [597887 — Create a Virtual Machine](course/754/laps/597887/) | Creating VMs & Installing NGINX on GCE |
+| [754 — The Basics of Google Cloud Compute](course/754/laps/597887/) | [597887 — Create a Virtual Machine](course/754/laps/597887/) | Create GCE VMs and install NGINX |
+| [1445 — GENAI106](course/1445/laps/619095/) | [619095 — Build Multi-Agent Systems with ADK](course/1445/laps/619095/) | Orchestrate multi-agent systems with Google ADK |
 
 ## General usage
 
