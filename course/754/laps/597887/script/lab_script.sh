@@ -24,6 +24,7 @@ header()  { echo -e "\n${BOLD}${CYAN}══════════════�
 # ── Defaults ───────────────────────────────────────────────
 REGION="us-east1"
 ZONE="us-east1-c"
+MACHINE_TYPE="e2-medium"
 
 # ── Argument Parsing ───────────────────────────────────────
 usage() {
@@ -32,23 +33,26 @@ ${BOLD}Usage:${RESET}
   $0 [OPTIONS]
 
 ${BOLD}Options:${RESET}
-  -r, --region   REGION   GCP region  (default: us-east1)
-  -z, --zone     ZONE     GCP zone    (default: us-east1-c)
-  -h, --help              Show this help message
+  -r, --region         REGION         GCP region    (default: us-east1)
+  -z, --zone           ZONE           GCP zone      (default: us-east1-c)
+  -m, --machine-type   MACHINE_TYPE   VM machine type (default: e2-medium)
+  -h, --help                          Show this help message
 
 ${BOLD}Examples:${RESET}
   $0
   $0 --region us-central1 --zone us-central1-a
   $0 -r europe-west1 -z europe-west1-b
+  $0 --machine-type e2-standard-2
 "
   exit 0
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -r|--region) REGION="$2"; shift 2 ;;
-    -z|--zone)   ZONE="$2";   shift 2 ;;
-    -h|--help)   usage ;;
+    -r|--region)       REGION="$2";       shift 2 ;;
+    -z|--zone)         ZONE="$2";         shift 2 ;;
+    -m|--machine-type) MACHINE_TYPE="$2"; shift 2 ;;
+    -h|--help)         usage ;;
     *) error "Unknown argument: $1. Use --help for usage." ;;
   esac
 done
@@ -58,7 +62,7 @@ if [[ "$ZONE" != "$REGION"* ]]; then
   error "Zone '$ZONE' does not belong to region '$REGION'."
 fi
 
-export REGION ZONE
+export REGION ZONE MACHINE_TYPE
 
 # ── Parallel helpers ───────────────────────────────────────
 BG_PIDS=()
@@ -105,8 +109,9 @@ wait_for_ssh() {
 
 # ══════════════════════════════════════════════════════════
 header "GCE Lab Automation Script"
-echo -e "  Region : ${BOLD}$REGION${RESET}"
-echo -e "  Zone   : ${BOLD}$ZONE${RESET}"
+echo -e "  Region       : ${BOLD}$REGION${RESET}"
+echo -e "  Zone         : ${BOLD}$ZONE${RESET}"
+echo -e "  Machine type : ${BOLD}$MACHINE_TYPE${RESET}"
 
 # ── Phase 1: gcloud config + firewall in parallel ─────────
 header "Phase 1 — Config & Firewall (parallel)"
@@ -139,7 +144,7 @@ header "Phase 2 — Create VMs in parallel"
 
 (
   if gcloud compute instances create gcelab \
-      --machine-type=e2-medium \
+      --machine-type="$MACHINE_TYPE" \
       --zone="$ZONE" \
       --image-family=debian-12 \
       --image-project=debian-cloud \
@@ -154,11 +159,11 @@ header "Phase 2 — Create VMs in parallel"
     error "Failed to create or verify VM 'gcelab'."
   fi
 ) &
-bg_track "VM 'gcelab' (e2-medium, Debian 12, http-server tag)" $!
+bg_track "VM 'gcelab' ($MACHINE_TYPE, Debian 12, http-server tag)" $!
 
 (
   if gcloud compute instances create gcelab2 \
-      --machine-type=e2-medium \
+      --machine-type="$MACHINE_TYPE" \
       --zone="$ZONE" \
       --image-family=debian-12 \
       --image-project=debian-cloud \
@@ -170,7 +175,7 @@ bg_track "VM 'gcelab' (e2-medium, Debian 12, http-server tag)" $!
     error "Failed to create or verify VM 'gcelab2'."
   fi
 ) &
-bg_track "VM 'gcelab2' (e2-medium, Debian 12)" $!
+bg_track "VM 'gcelab2' ($MACHINE_TYPE, Debian 12)" $!
 
 wait_all
 
