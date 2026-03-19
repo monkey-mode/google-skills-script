@@ -64,13 +64,12 @@ export REGION ZONE
 BG_PIDS=()
 BG_LABELS=()
 
-bg_run() {
-  # bg_run "label" cmd [args...]
-  local label="$1"; shift
-  "$@" &
-  local pid=$!
+# bg_track "label" <pid>  — record an already-backgrounded PID
+bg_track() {
+  local label="$1"
+  local pid="$2"
   BG_PIDS+=("$pid")
-  BG_LABELS+=("$label")   # same index as BG_PIDS
+  BG_LABELS+=("$label")
 }
 
 wait_all() {
@@ -116,7 +115,7 @@ header "Phase 1 — Config & Firewall (parallel)"
   gcloud config set compute/region "$REGION" --quiet
   gcloud config set compute/zone   "$ZONE"   --quiet
 ) &
-bg_run "gcloud config → region=$REGION zone=$ZONE" $!
+bg_track "gcloud config → region=$REGION zone=$ZONE" $!
 
 (
   if gcloud compute firewall-rules describe allow-http --quiet 2>/dev/null; then
@@ -129,31 +128,43 @@ bg_run "gcloud config → region=$REGION zone=$ZONE" $!
       --quiet
   fi
 ) &
-bg_run "Firewall rule allow-http (tcp:80)" $!
+bg_track "Firewall rule allow-http (tcp:80)" $!
 
 wait_all
 
 # ── Phase 2: Create both VMs in parallel ──────────────────
 header "Phase 2 — Create VMs in parallel"
 
-gcloud compute instances create gcelab \
-  --machine-type=e2-medium \
-  --zone="$ZONE" \
-  --image-family=debian-12 \
-  --image-project=debian-cloud \
-  --boot-disk-size=10GB \
-  --boot-disk-type=pd-balanced \
-  --tags=http-server \
-  --quiet &
-bg_run "VM 'gcelab' created  (e2-medium, Debian 12, http-server tag)" $!
+(
+  if gcloud compute instances describe gcelab --zone="$ZONE" --quiet 2>/dev/null; then
+    warn "VM 'gcelab' already exists, skipping."
+  else
+    gcloud compute instances create gcelab \
+      --machine-type=e2-medium \
+      --zone="$ZONE" \
+      --image-family=debian-12 \
+      --image-project=debian-cloud \
+      --boot-disk-size=10GB \
+      --boot-disk-type=pd-balanced \
+      --tags=http-server \
+      --quiet
+  fi
+) &
+bg_track "VM 'gcelab' (e2-medium, Debian 12, http-server tag)" $!
 
-gcloud compute instances create gcelab2 \
-  --machine-type=e2-medium \
-  --zone="$ZONE" \
-  --image-family=debian-12 \
-  --image-project=debian-cloud \
-  --quiet &
-bg_run "VM 'gcelab2' created (e2-medium, Debian 12)" $!
+(
+  if gcloud compute instances describe gcelab2 --zone="$ZONE" --quiet 2>/dev/null; then
+    warn "VM 'gcelab2' already exists, skipping."
+  else
+    gcloud compute instances create gcelab2 \
+      --machine-type=e2-medium \
+      --zone="$ZONE" \
+      --image-family=debian-12 \
+      --image-project=debian-cloud \
+      --quiet
+  fi
+) &
+bg_track "VM 'gcelab2' (e2-medium, Debian 12)" $!
 
 wait_all
 
@@ -169,7 +180,7 @@ header "Phase 3 — Post-boot tasks (parallel)"
                sudo systemctl start nginx" \
     -- -o StrictHostKeyChecking=no
 ) &
-bg_run "NGINX installed & started on 'gcelab'" $!
+bg_track "NGINX installed & started on 'gcelab'" $!
 
 (
   wait_for_ssh gcelab2
@@ -177,7 +188,7 @@ bg_run "NGINX installed & started on 'gcelab'" $!
     --command="echo 'gcelab2 SSH ok'" \
     -- -o StrictHostKeyChecking=no
 ) &
-bg_run "SSH verified on 'gcelab2'" $!
+bg_track "SSH verified on 'gcelab2'" $!
 
 wait_all
 
