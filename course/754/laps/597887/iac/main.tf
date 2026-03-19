@@ -23,7 +23,8 @@ resource "google_compute_firewall" "allow_http" {
     ports    = ["80"]
   }
 
-  target_tags = ["http-server"]
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["http-server"]
 }
 
 # ── VM: gcelab (NGINX) ──────────────────────────────────────
