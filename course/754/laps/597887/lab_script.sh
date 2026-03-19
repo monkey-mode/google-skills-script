@@ -118,14 +118,16 @@ header "Phase 1 — Config & Firewall (parallel)"
 bg_track "gcloud config → region=$REGION zone=$ZONE" $!
 
 (
-  if gcloud compute firewall-rules describe allow-http --quiet 2>/dev/null; then
-    warn "Firewall rule 'allow-http' already exists, skipping."
-  else
-    gcloud compute firewall-rules create allow-http \
+  if gcloud compute firewall-rules create allow-http \
       --allow=tcp:80 \
       --target-tags=http-server \
       --description="Allow HTTP traffic on port 80" \
-      --quiet
+      --quiet 2>&1; then
+    : # created successfully
+  elif gcloud compute firewall-rules describe allow-http --quiet 2>/dev/null; then
+    warn "Firewall rule 'allow-http' already exists, skipping."
+  else
+    error "Failed to create or verify firewall rule 'allow-http'."
   fi
 ) &
 bg_track "Firewall rule allow-http (tcp:80)" $!
@@ -136,10 +138,7 @@ wait_all
 header "Phase 2 — Create VMs in parallel"
 
 (
-  if gcloud compute instances describe gcelab --zone="$ZONE" --quiet 2>/dev/null; then
-    warn "VM 'gcelab' already exists, skipping."
-  else
-    gcloud compute instances create gcelab \
+  if gcloud compute instances create gcelab \
       --machine-type=e2-medium \
       --zone="$ZONE" \
       --image-family=debian-12 \
@@ -147,21 +146,28 @@ header "Phase 2 — Create VMs in parallel"
       --boot-disk-size=10GB \
       --boot-disk-type=pd-balanced \
       --tags=http-server \
-      --quiet
+      --quiet 2>&1; then
+    : # created successfully
+  elif gcloud compute instances describe gcelab --zone="$ZONE" --quiet 2>/dev/null; then
+    warn "VM 'gcelab' already exists, skipping."
+  else
+    error "Failed to create or verify VM 'gcelab'."
   fi
 ) &
 bg_track "VM 'gcelab' (e2-medium, Debian 12, http-server tag)" $!
 
 (
-  if gcloud compute instances describe gcelab2 --zone="$ZONE" --quiet 2>/dev/null; then
-    warn "VM 'gcelab2' already exists, skipping."
-  else
-    gcloud compute instances create gcelab2 \
+  if gcloud compute instances create gcelab2 \
       --machine-type=e2-medium \
       --zone="$ZONE" \
       --image-family=debian-12 \
       --image-project=debian-cloud \
-      --quiet
+      --quiet 2>&1; then
+    : # created successfully
+  elif gcloud compute instances describe gcelab2 --zone="$ZONE" --quiet 2>/dev/null; then
+    warn "VM 'gcelab2' already exists, skipping."
+  else
+    error "Failed to create or verify VM 'gcelab2'."
   fi
 ) &
 bg_track "VM 'gcelab2' (e2-medium, Debian 12)" $!
