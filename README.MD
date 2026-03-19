@@ -20,6 +20,7 @@ course/
 | Course | Lab | Description |
 |--------|-----|-------------|
 | [754 — The Basics of Google Cloud Compute](course/754/laps/597887/) | [597887 — Create a Virtual Machine](course/754/laps/597887/) | Create GCE VMs and install NGINX |
+| [696 — Cloud Run Functions: 3 Ways](course/696/laps/598830/) | [598830 — Cloud Run Functions: Qwik Start - Console](course/696/laps/598830/) | Deploy and test an HTTP-triggered Cloud Run Function |
 | [1445 — GENAI106](course/1445/laps/619095/) | [619095 — Build Multi-Agent Systems with ADK](course/1445/laps/619095/) | Orchestrate multi-agent systems with Google ADK |
 
 ## General usage

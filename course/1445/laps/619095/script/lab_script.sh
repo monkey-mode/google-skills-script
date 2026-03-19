@@ -70,7 +70,14 @@ cd ~
 gcloud storage cp -r "gs://${PROJECT_ID}-bucket/*" .
 success "Lab files copied from bucket"
 
-export PATH="$PATH:/home/${USER}/.local/bin"
+ADK_PATH="/home/${USER}/.local/bin"
+export PATH="$PATH:$ADK_PATH"
+
+# Persist PATH to .bashrc so adk is available after the script exits
+if ! grep -q "$ADK_PATH" ~/.bashrc 2>/dev/null; then
+  echo "export PATH=\"\$PATH:$ADK_PATH\"" >> ~/.bashrc
+fi
+
 python3 -m pip install google-adk -r adk_multiagent_systems/requirements.txt -q
 success "ADK and requirements installed"
 
@@ -421,6 +428,7 @@ success "workflow_agents/agent.py patched (Task 6)"
 header "✅  All Tasks Completed"
 
 echo -e "\n${BOLD}Next steps:${RESET}"
+echo -e "  source ~/.bashrc   ${CYAN}# reload PATH so 'adk' is available${RESET}"
 echo -e "  cd ~/adk_multiagent_systems"
 echo -e ""
 echo -e "  # Run parent_and_subagents (Task 2 & 3):"
