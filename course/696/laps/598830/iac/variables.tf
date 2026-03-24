@@ -6,11 +6,11 @@ variable "project_id" {
 variable "region" {
   description = "GCP region"
   type        = string
-  default     = "us-east1"
+  default     = "us-east4"
 }
 
 variable "memory" {
   description = "Memory allocation for the function"
   type        = string
-  default     = "256M"
+  default     = "512M"
 }

@@ -40,7 +40,7 @@ chmod +x lab_script.sh
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-r`, `--region` | `us-east1` | GCP region |
+| `-r`, `--region` | `us-east4` | GCP region |
 
 ---
 
@@ -50,7 +50,7 @@ chmod +x lab_script.sh
 # Run directly from GitHub
 mkdir lab-598830 && cd lab-598830
 terraform init -from-module=github.com/monkey-mode/google-skills-script//course/696/laps/598830/iac
-terraform apply -var="project_id=qwiklabs-gcp-02-a042588907c1"
+terraform apply -var="project_id=qwiklabs-gcp-02-a042588907c1" -var="region=us-east4"
 ```
 
 ```bash
@@ -71,7 +71,7 @@ terraform destroy -var="project_id=YOUR_PROJECT_ID"
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `project_id` | — | GCP project ID (required) |
-| `region` | `us-east1` | GCP region |
+| `region` | `us-east4` | GCP region |
 | `memory` | `256M` | Function memory allocation |
 
 ### Outputs
