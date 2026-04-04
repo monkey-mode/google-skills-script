@@ -98,9 +98,9 @@ success ".env files created for both agent directories"
 header "Task 2 & 3 — Patch parent_and_subagents/agent.py"
 
 python3 - <<'PYEOF'
-import re, sys
+import re, os, sys
 
-path = __import__('os').path.expanduser(
+path = os.path.expanduser(
     '~/adk_multiagent_systems/parent_and_subagents/agent.py'
 )
 
@@ -306,23 +306,7 @@ if 'writers_room' in src and 'researcher' in src:
     )
     print('[✓] Updated film_concept_team to use writers_room')
 
-with open(path, 'w') as f:
-    f.write(src)
-PYEOF
-
-success "workflow_agents/agent.py patched (Task 5)"
-
-# ── Task 6: Patch workflow_agents/agent.py (ParallelAgent)
-header "Task 6 — Patch workflow_agents/agent.py (ParallelAgent)"
-
-python3 - <<'PYEOF'
-import re, os
-
-path = os.path.expanduser('~/adk_multiagent_systems/workflow_agents/agent.py')
-
-with open(path) as f:
-    src = f.read()
-
+# ── Task 6: ParallelAgent additions (same file, same pass) ─
 # ── Add box_office_researcher + casting_agent + ParallelAgent ──
 PARALLEL_AGENTS = '''
 box_office_researcher = Agent(
@@ -375,10 +359,7 @@ else:
     print('[~] Parallel agents already present, skipping')
 
 # ── Update film_concept_team to include preproduction_team ─
-if 'preproduction_team' not in src or \
-   'preproduction_team' not in re.search(
-       r'film_concept_team.*?sub_agents.*?\]', src, re.DOTALL
-   ).group(0) if re.search(r'film_concept_team.*?sub_agents.*?\]', src, re.DOTALL) else '':
+if 'preproduction_team' not in src:
     src = re.sub(
         r'(film_concept_team\s*=\s*SequentialAgent\(.*?sub_agents\s*=\s*\[)(.*?)(\])',
         r'\1\n        writers_room,\n        preproduction_team,\n        file_writer\n    \3',
@@ -422,7 +403,7 @@ with open(path, 'w') as f:
     f.write(src)
 PYEOF
 
-success "workflow_agents/agent.py patched (Task 6)"
+success "workflow_agents/agent.py patched (Tasks 5 & 6)"
 
 # ── Done ───────────────────────────────────────────────────
 header "✅  All Tasks Completed"

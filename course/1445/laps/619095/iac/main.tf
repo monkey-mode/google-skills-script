@@ -8,17 +8,15 @@ terraform {
 }
 
 provider "google" {
-  project = var.project_id
-  region  = var.region
+  region = var.region
 }
 
 # ── Enable required APIs ────────────────────────────────────
-resource "google_project_service" "vertex_ai" {
-  service            = "aiplatform.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_project_service" "storage" {
-  service            = "storage.googleapis.com"
+resource "google_project_service" "apis" {
+  for_each = toset([
+    "aiplatform.googleapis.com",
+    "storage.googleapis.com",
+  ])
+  service            = each.value
   disable_on_destroy = false
 }
