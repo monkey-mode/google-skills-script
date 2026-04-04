@@ -31,7 +31,7 @@ ${BOLD}Usage:${RESET}
   $0 [OPTIONS]
 
 ${BOLD}Options:${RESET}
-  -r, --region   REGION   GCP region (default: us-east1)
+  -r, --region   REGION   GCP region (default: us-central1)
   -h, --help              Show this help message
 
 ${BOLD}Examples:${RESET}
