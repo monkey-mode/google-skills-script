@@ -211,9 +211,9 @@ gcloud compute instances list \
   --filter="zone:($ZONE)" \
   --format="table(name,zone,machineType.basename(),status,networkInterfaces[0].accessConfigs[0].natIP:label=EXTERNAL_IP)"
 
-EXTERNAL_IP=$(gcloud compute instances describe gcelab \
-  --zone="$ZONE" \
-  --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+EXTERNAL_IP=$(gcloud compute instances list \
+  --filter="name=gcelab zone:($ZONE)" \
+  --format='value(networkInterfaces[0].accessConfigs[0].natIP)')
 
 echo -e "\n${BOLD}NGINX Web Server:${RESET}"
 echo -e "  ${GREEN}http://${EXTERNAL_IP}${RESET}  ← open in your browser"
